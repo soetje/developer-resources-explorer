@@ -1,29 +1,49 @@
 import React, { useState } from "react"
 import { useSelector } from "react-redux"
 import "./App.css"
-import { selectStatistics } from "./store/developers/selectors"
-
-const selectResources = (state) => {
-  return state.resources
-}
+import {
+  selectStatistics,
+  selectResources,
+  developersWithThisFavorite,
+  selectDevelopers,
+} from "./store/developers/selectors"
 
 function App() {
-  const statistics = useSelector(selectStatistics)
-  const resources = useSelector(selectResources)
-
   const [selectedResource, set_selectedResource] = useState(2)
+  const [selectDeveloper, set_selectDeveloper] = useState(2)
+  const statistics = useSelector(selectStatistics)
+
+  const resources = useSelector(selectResources)
+  console.log("what is resources", resources)
+
+  const developerFavorite = useSelector(
+    developersWithThisFavorite(selectedResource)
+  )
+  console.log("what is developerFavorite", developerFavorite)
+
+  const developers = useSelector(selectDevelopers)
+  console.log("what is developer", developers)
 
   function onChangeSelect(event) {
-    console.log("what is event:", event.target.value)
     set_selectedResource(Number(event.target.value)) // event.target.value is always string
   }
 
-  const developersWithThisFavorite = useSelector((state) => {
-    return state.developers.filter((dev) =>
-      dev.favorites.includes(selectedResource)
-    )
-  })
-  console.log("is this favourite", developersWithThisFavorite)
+  function onChangeDeveloper(event) {
+    set_selectDeveloper(Number(event.target.value))
+  }
+  const selectDevelopersFavoritesResources = (selectDeveloper) => (state) => {
+    const developer = state.developers.find((dev) => dev.id === selectDeveloper)
+    if (!developer) {
+      return []
+    }
+    return state.resources.filter((resource) => {
+      return developer.favorites.includes(resource.id)
+    })
+  }
+  const favoriteResources = useSelector(
+    selectDevelopersFavoritesResources(selectDeveloper)
+  )
+
   return (
     <div>
       <h1>Web development resources</h1>
@@ -50,10 +70,30 @@ function App() {
         </select>
       </h2>
       <ul>
-        {developersWithThisFavorite.map((developer) => {
+        {developerFavorite.map((developer) => {
           return <li key={developer.id}>{developer.name}</li>
         })}
       </ul>
+      <div>
+        <h2>
+          What are
+          <select value={developers.id} onChange={onChangeDeveloper}>
+            {developers.map((dev) => {
+              return (
+                <option key={dev.id} value={dev.id}>
+                  {dev.name}
+                </option>
+              )
+            })}
+          </select>
+          's favorites?
+        </h2>
+        <ul>
+          {favoriteResources.map((resource) => {
+            return <li key={resource.id}> value={resource.id}</li>
+          })}
+        </ul>
+      </div>
     </div>
   )
 }

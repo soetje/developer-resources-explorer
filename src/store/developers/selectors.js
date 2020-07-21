@@ -4,7 +4,6 @@ export const selectStatistics = (state) => {
     numResources: state.resources.length,
   }
 }
-
 function average(numbers) {
   return numbers.reduce((a, b) => a + b, 0) / numbers.length
 }
@@ -26,4 +25,12 @@ export const selectDeveloperStatistics = (state) => {
   }
 }
 
+export const selectResources = (state) => {
+  return state.resources
+}
 
+export const developersWithThisFavorite = selectedResource => state => {
+  return state.developers.filter((dev) =>
+    dev.favorites.includes(selectedResource)
+  )
+}
